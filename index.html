@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Slider - Colorpicker</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <style>
+    fieldset {
+      margin-bottom: 20px;
+    }
+    .mainContainer {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .colorPickerContainer {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .exampleContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-left: 50px;
+    }
+    #red, #green, #blue {
+      float: left;
+      clear: left;
+      width: 300px;
+      margin: 15px;
+    }
+    #swatch {
+      width: 300px;
+      height: 100px;
+      background-image: none;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #text {
+      font-size: 18px;
+      margin: 0;
+    }
+    #hexText {
+      display: inline-flex;
+      font-size: 18px;
+      margin: 0;
+      margin-top: 10px;
+      background-color: #f6f6f6;
+      width: 86px;
+      height: 25px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 3px;
+    }
+    #red .ui-slider-range { background: #ef2929; }
+    #red .ui-slider-handle { border-color: #ef2929; }
+    #green .ui-slider-range { background: #8ae234; }
+    #green .ui-slider-handle { border-color: #8ae234; }
+    #blue .ui-slider-range { background: #729fcf; }
+    #blue .ui-slider-handle { border-color: #729fcf; }
+
+    input[type="number"] {
+      height: 16px;
+      width: 25px;
+      border-radius: 4px;
+      border: 1px solid #c5c5c5;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+    .scaleContainer {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    @media (max-width: 945px) {
+      
+    }
+  </style>
+  <script>
+    $( function() {
+
+      function hexFromRGB( r, g, b ) {
+        var hex = [
+          r.toString( 16 ),
+          g.toString( 16 ),
+          b.toString( 16 )
+        ];
+        $.each( hex, function( nr, val ) {
+          if ( val.length === 1 ) {
+            hex[ nr ] = "0" + val;
+          }
+        } );
+        return hex.join( "" ).toUpperCase();
+      }
+
+      // set color to scales from rgb(x, x, x) expression
+      function setColorRGB( color ) {
+        rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        $( "#red" ).slider( "value", rgb[1] );
+        $( "#green" ).slider( "value", rgb[2] );
+        $( "#blue" ).slider( "value", rgb[3] );
+      }
+
+      // get color from scales
+      function getColor() {
+        const red = $( "#red" ).slider( "value" ),
+          green = $( "#green" ).slider( "value" ),
+          blue = $( "#blue" ).slider( "value" ),
+          hex = hexFromRGB( red, green, blue );
+        return "#" + hex;
+      }
+
+      // transfers scale values to inputs
+      function updateInputs() {
+        $( "#r-input" ).val( $( "#red" ).slider( "value" ) );
+        $( "#g-input" ).val( $( "#green" ).slider( "value" ) );
+        $( "#b-input" ).val( $( "#blue" ).slider( "value" ) );
+      }
+
+      function refreshSwatch() {
+        updateInputs();
+        const color = getColor();
+        if ( $( "#radio-1" ).is( ":checked" ) ) {
+          refreshTextColor( color );
+        } else {
+          refreshBackgrColor( color );
+        }
+        $( "#hexText" ).html( color );
+      }
+
+      function refreshBackgrColor( hex ) {
+        $( "#swatch" ).css( "background-color", hex );
+      }
+
+      function refreshTextColor( hex ) {
+        $( "#text" ).css( "color", hex );
+      }
+
+      $( "#radio-1" ).change( function() {
+        if ($( "#radio-1" ).is( ":checked" )) {
+          const color = $( "#text" ).css( "color" );
+          setColorRGB( color );
+        }
+      });
+
+      $( "#radio-2" ).change( function() {
+        if ( $( "#radio-2" ).is( ":checked" ) ) {
+          const color = $( "#swatch" ).css( "background-color" );
+          setColorRGB( color );
+        }
+      });
+
+      $( "#r-input" ).change( function() {
+        $( "#red" ).slider( "value", $(this).val() );
+      });
+
+      $( "#g-input" ).change( function() {
+        $( "#green" ).slider( "value", $(this).val() );
+      });
+
+      $( "#b-input" ).change( function() {
+        $( "#blue" ).slider( "value", $(this).val() );
+      });
+
+      $( "#radio-1, #radio-2" ).checkboxradio( {
+      icon: false,
+      } );
+      $( "#radio-1" ).checkboxradio( {
+        label: "Color"
+      } );
+      $( "#radio-2" ).checkboxradio( {
+        label: "Background color"
+      } );
+      $( "#red, #green, #blue" ).slider( {
+        orientation: "horizontal",
+        range: "min",
+        max: 255,
+        value: 127,
+        slide: refreshSwatch,
+        change: refreshSwatch
+      } );
+      $( "#red" ).slider( "value", 167 );
+      $( "#green" ).slider( "value", 193 );
+      $( "#blue" ).slider( "value", 220 );
+    });
+  </script>
+</head>
+<body class="ui-widget-content" style="border:0;">
+  
+  <div class="mainContainer">
+    <fieldset>
+      <legend>Select:</legend>
+      <label for="radio-1">Color</label>
+      <input type="radio" name="radio-1" id="radio-1">
+      <label for="radio-2">Background color</label>
+      <input type="radio" name="radio-1" id="radio-2" checked>
+    </fieldset>
+
+    <div class="colorPickerContainer">
+
+      <div class="sliderContainer">
+        <div class="scaleContainer">
+          <input type="number" min="0" max="255" id="r-input">
+          <div id="red"></div>
+        </div>
+        <div class="scaleContainer">
+          <input type="number" min="0" max="255" id="g-input">
+          <div id="green"></div>
+        </div>
+        <div class="scaleContainer">
+          <input type="number" min="0" max="255" id="b-input">
+          <div id="blue"></div>
+        </div>
+      </div>
+
+      <div class="exampleContainer">
+        <div id="swatch" class="ui-widget-content ui-corner-all">
+          <p id="text">Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+            Maiores repudiandae atque animi totam ex accusamus fugiat minus natus aliquid iste.
+          </p>
+        </div>
+        <p id="hexText"></p>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
